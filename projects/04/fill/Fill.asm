@@ -12,3 +12,32 @@
 // the screen should remain fully clear as long as no key is pressed.
 
 // Put your code here.
+
+// while (1)
+// {
+//      if (check(i)) black
+//      else white
+// } 
+(LOOP)
+@R1
+
+@SCCEN
+D = M
+
+@WHITE
+D;JEQ
+
+@OUT
+D;Jep
+
+
+@NE
+0;JMP
+(WHITE)
+
+
+
+
+(NE)
+@LOOP
+0;JMP
