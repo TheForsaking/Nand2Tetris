@@ -18,26 +18,57 @@
 //      if (check(i)) black
 //      else white
 // } 
-(LOOP)
-@R1
 
-@SCCEN
+(LOOP)
+@24575
+D = A
+@R0 // 用于储存最大地址 + 1
+M = D
+@SCREEN
+D = A
+@R1 // 用于储存当前地址
+M = D 
+
+@24576
 D = M
 
 @WHITE
 D;JEQ
 
-@OUT
-D;Jep
+(BLACK) // 将屏幕渲染为黑色
+@R1
+D = M
+A = M
+M = -1
 
+@R0
+D = M
+@R1
+D = D - M
 
-@NE
-0;JMP
-(WHITE)
-
-
-
-
-(NE)
 @LOOP
+D;JEQ
+
+@R1
+M = M + 1
+@BLACK
+0;JMP
+
+(WHITE)
+@R1
+D = M
+A = M
+M = 0
+
+@R0
+D = M
+@R1
+D = D - M
+@LOOP
+D;JEQ
+
+@R1
+M = M + 1
+
+@WHITE
 0;JMP
