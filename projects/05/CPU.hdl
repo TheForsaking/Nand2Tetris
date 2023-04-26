@@ -40,4 +40,51 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+    // 指令最高位,为1则为C指令,否则为A指令
+    Not(in = instruction[15], out = A);
+    Not(in = A, out = C);
+
+    // C指令且指令指定输出存到AR, 则将ALU的输出 输入到AR 否则将指令输入到AR
+    And(a = C, b = instruction[5], out = LoadALUout);
+    Mux16(a = instruction, b = outALU, sel = LoadALUout, out = inAR);
+
+    // A指令或指令输出为A处理器
+    Or(a = A, b = instruction[5], out = LoadAR);
+    ARegister(in = inAR, load = LoadAR, out = outAR, out[0..14] = addressM);
+
+    Mux16(a = outAR, b = inM, sel = instruction[12], out = outAM);
+
+    // C指令写入到M
+    And(a = isC, b = instruction[3], out = writeM);
+
+    // C指令并且规定写入到DR
+    And(a = instruction[4], b = isC, out = isLoadDR); 
+    DRegister(in = outALU, load = isLoadDR, out = outDR);
+
+    And(a = isC, b = instruction[6], out = no);
+    And(a = isC, b = instruction[7], out = f);
+    And(a = isC, b = instruction[8], out = ny);
+    And(a = isC, b = instruction[9], out = zy);
+    And(a = isC, b = instruction[10], out = nx);
+    And(a = isC, b = instruction[11], out = zx);
+
+    ALU(x = outDR, y = outAM, zx = zx, nx = nx, zy = zy, ny = ny, f = f, no = no, out = outALU, out = outM, zr=zr, ng=ng);
+    And(a = isC, b = instruction[0], out = isGT);
+    And(a = isC, b = instruction[1], out = isEQ);
+    And(a = isC, b = instruction[2], out = isLT);
+
+    And(a = ng, b = isLT, out = isLtJump);
+    And(a = zr, b = isEQ, out = isEqJump);
+
+    // 输出是否大于0
+    Not(in = ng, out = notNg);
+    Not(in = zr, out = notZr);
+    And(a = notNg, b = notZr, out = isOutGt);
+    
+    And(a = isOutGt, b = isGT, out = isGtJump);
+
+    Or(a = isLtJump, b = isEqJump, out = isJump);
+    Or(a = isJump, b = isGtJump, out = jump);
+
+    PC(in = outAR, load = jump, inc = true, reset = reset, out[0..14] = pc);
 }
